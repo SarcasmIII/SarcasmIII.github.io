@@ -8,6 +8,8 @@ $( document ).ready(function() {
         console.log("Нажали кнопку");
         var fieldWidth = $("#fieldWidth")[0];
         var fieldHeight = $("#fieldHeight")[0];
+        field_width = fieldWidth.value;
+        field_height = fieldHeight.value;
         console.log(fieldWidth.value);
         console.log(fieldHeight.value);
         createField(fieldWidth.value, fieldHeight.value);
@@ -19,12 +21,18 @@ $( document ).ready(function() {
     var base_size = 50;
     var clickStatus = true;
     var zIndex = 1;
+    var fieldStatus = [];
+    var offsetFieldTop = $(".field").offset().top;
+    var offsetFieldLeft = $(".field").offset().left;
+
 
     function createField (newWidth, newHeight) {
         field.css({"width": base_size * newWidth + "px", "height": base_size * newHeight + "px"});
         field.empty();
         for (i = 0; i < newHeight; i++) {
+            fieldStatus[i] = [];
             for (j = 0; j < newWidth; j++) {
+                fieldStatus[i][j] = 0;
                 width = base_size * i;
                 height = base_size * j;
                 field.append('<div class="block' + i + j + ' fieldblock" style="top: ' + width + 'px; left: ' + height + 'px;"></div>');
@@ -33,7 +41,7 @@ $( document ).ready(function() {
     }
     createField(field_width, field_height);
 
-
+    //console.log(fieldStatus);
 
     var dragFigure = {};
 
@@ -52,51 +60,48 @@ $( document ).ready(function() {
     $("body").mousedown(function (event){
 
         var figcont = $(event.target).closest('.figcont');
-        if (!figcont) {
+        if (!figcont.length) {
             return;
         }
+        else
+        {
+
+            console.log(event);
+
+            var baseblock = figcont.find(".baseblock");
+            //console.log(baseblock);
+            var clientRect = figcont.get(0).getBoundingClientRect();
 
 
+            var posmouseX=event.pageX;
+            var posmouseY=event.pageY;
 
-        console.log(event);
+            var kek = figcont.offset();
+            //console.log(kek);
+            //console.log(clientRect);
+            var posfigureX=kek.left;
+            var posfigureY=kek.top;
 
+            var deltaX=posmouseX-posfigureX;
+            var deltaY=posmouseY-posfigureY;
+            var corX = (figcont.width() - clientRect.width)/2;
+            var corY = (figcont.height() - clientRect.height)/2;
 
-        var baseblock = figcont.find(".baseblock");
-        //console.log(baseblock);
-        var clientRect = figcont.get(0).getBoundingClientRect();
+            dragFigure.figcont = figcont;
+            dragFigure.posmouseX = posmouseX;
+            dragFigure.posmouseY = posmouseY;
+            dragFigure.deltaX = deltaX;
+            dragFigure.deltaY = deltaY;
+            dragFigure.corX = corX;
+            dragFigure.corY = corY;
+            dragFigure.baseblock = baseblock;
+            //console.log(corX + " " + corY);
 
+            figcont.css({"z-index":"1000"});
+            //console.log(kek.left);
+            //console.log(kek.top);
 
-
-
-        var posmouseX=event.pageX;
-        var posmouseY=event.pageY;
-
-        var kek = figcont.offset();
-        //console.log(kek);
-        //console.log(clientRect);
-        var posfigureX=kek.left;
-        var posfigureY=kek.top;
-
-        var deltaX=posmouseX-posfigureX;
-        var deltaY=posmouseY-posfigureY;
-        var corX = (figcont.width() - clientRect.width)/2;
-        var corY = (figcont.height() - clientRect.height)/2;
-
-        dragFigure.figcont = figcont;
-        dragFigure.posmouseX = posmouseX;
-        dragFigure.posmouseY = posmouseY;
-        dragFigure.deltaX = deltaX;
-        dragFigure.deltaY = deltaY;
-        dragFigure.corX = corX;
-        dragFigure.corY = corY;
-        dragFigure.baseblock = baseblock;
-        //console.log(corX + " " + corY);
-
-        figcont.css({"z-index":"1000"});
-        //console.log(kek.left);
-        //console.log(kek.top);
-
-
+        }
 
     });
 
@@ -133,25 +138,54 @@ $( document ).ready(function() {
             array.push([Round_offset_left, Round_offset_top]);
 
         });
+        outArray = array;
         checkFieldBlock(array);
-
-        function checkFieldBlock(array){
-            var fieldBlock = field.find(".fieldblock");
-            fieldBlock.each(function() {
-                var fieldBlockOffsetLeft = $(this).offset().left;
-                var fieldBlockOffsetTop = $(this).offset().top;
-                var that = $(this);
-                $(this).removeClass("highlight");
-                array.forEach(function(item, i, array){
-                    var Round_left = item[0];
-                    var Round_top = item[1];
-                    if ((fieldBlockOffsetLeft == Round_left) && (fieldBlockOffsetTop == Round_top)){
-                        that.addClass("highlight");
-                    }
-                });
-            });
-        }
     });
+
+    var outArray = [];
+
+    function checkFieldBlock(array){
+        var fieldBlock = field.find(".fieldblock");
+        fieldBlock.each(function() {
+            var fieldBlockOffsetLeft = $(this).offset().left;
+            var fieldBlockOffsetTop = $(this).offset().top;
+            var that = $(this);
+            $(this).removeClass("highlight");
+            var ii = Math.round((fieldBlockOffsetTop - offsetFieldTop) / base_size);
+            var jj = Math.round((fieldBlockOffsetLeft - offsetFieldLeft) / base_size);
+            //console.log(ii + " " + jj);
+            array.forEach(function(item, i, array){
+                var Round_left = item[0];
+                var Round_top = item[1];
+                if ((fieldBlockOffsetLeft == Round_left) && (fieldBlockOffsetTop == Round_top)){
+                    that.addClass("highlight");
+                    //fieldStatus[ii][jj] = 1;
+                }
+            });
+        });
+    }
+
+
+    function checkMouseUp(array){
+        var fieldBlock = field.find(".fieldblock");
+        fieldBlock.each(function() {
+            var fieldBlockOffsetLeft = $(this).offset().left;
+            var fieldBlockOffsetTop = $(this).offset().top;
+            var that = $(this);
+            $(this).removeClass("highlight");
+            var ii = Math.round((fieldBlockOffsetTop - offsetFieldTop) / base_size);
+            var jj = Math.round((fieldBlockOffsetLeft - offsetFieldLeft) / base_size);
+            //console.log(ii + " " + jj);
+            array.forEach(function(item, i, array){
+                var Round_left = item[0];
+                var Round_top = item[1];
+                if ((fieldBlockOffsetLeft == Round_left) && (fieldBlockOffsetTop == Round_top)){
+                    that.addClass("highlight");
+                    fieldStatus[ii][jj] = 1;
+                }
+            });
+        });
+    }
 
 
     $("body").mouseup(function (event){
@@ -202,6 +236,7 @@ $( document ).ready(function() {
             var yy = (dragFigure.figcont.offset().top - dragFigure.corY) / base_size;
             var Round_offset_left = Math.round(xx) * base_size;
             var Round_offset_top = Math.round(yy) * base_size;
+            checkMouseUp(outArray);
             //Ошибка вывода отступов при повороте.
             console.log(Round_offset_left + " " + Round_offset_top);
             //figcont.css({"left": Round_offset_left, "top": Round_offset_top});
@@ -213,10 +248,25 @@ $( document ).ready(function() {
             });
         }
 
+
+        console.log(fieldStatus);
         dragFigure = {};
         clickStatus = true;
         item.css({"z-index":zIndex++});
-    });
 
+        var winStatus = 1;
+
+        for (i = 0; i < field_width; i++) {
+            for (j = 0; j < field_height; j++) {
+                winStatus = winStatus * fieldStatus[i][j];
+            }
+        }
+        console.log(winStatus);
+
+        if (winStatus==1)
+        {
+            alert("WIN");
+        }
+    });
 
 });
