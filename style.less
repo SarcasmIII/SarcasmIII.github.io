@@ -15,6 +15,18 @@
 .mirrorcont {transition: all 0.7s ease;}
 .mirror {transform: scale(-1, 1);}
 
+.message {width: 20%; height: 20%; position: fixed; font-family: Arial; background-color: white; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 20px; box-shadow: rgba(0,0,0,0.4) 10px 10px 30px; border-radius: 10px;
+  .message-text {font-size: 32px; text-align: center; color: red; }
+  .close-button {text-align: center; font-size: 16px; width: 40%; height: 50px; position: absolute; background-color: #bdbebd; bottom: 10%; left: 30%; border-radius: 5px;
+        .text-button {position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);}
+  }
+  .close-button:hover {background-color: #dddbd9;}
+}
+.message.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
 .profchoose {position: absolute; top: 1000px; left: 300px; height: 200px; width: 300px; background-color: #df2eb0; text-align: center;}
 
 .field { position: absolute; top: @offset_field_top - @border_width; left: @offset_field_left - @border_width; border: solid @border_width black; background-color: #ffffff; box-sizing: content-box;
@@ -55,7 +67,7 @@
 }
 
 .fig4 {left: 700px; top: 400px; width: @base*3; height: @base*3;
-  .baseblock {background-color: rgb(253, 251, 255);}
+  .baseblock {background-color: rgb(67, 255, 52);}
   .figure10 {left: @base; top: @base*0;}
   .figure20 {left: @base*2; top: @base*0;}
   .figure01 {left: @base*0; top: @base;}

@@ -16,7 +16,7 @@ $( document ).ready(function() {
     });
 
     //Построения поля для Пентамино
-    var field_width=5, field_height=5;
+    var field_width=12, field_height=5;
     var field = $(".field");
     var base_size = 50;
     var clickStatus = true;
@@ -24,6 +24,8 @@ $( document ).ready(function() {
     var fieldStatus = [];
     var offsetFieldTop = $(".field").offset().top;
     var offsetFieldLeft = $(".field").offset().left;
+    var globalWinStatus = 0;
+    var messageBox = $('.message');
 
 
     function createField (newWidth, newHeight) {
@@ -46,7 +48,7 @@ $( document ).ready(function() {
     var dragFigure = {};
 
 
-    $("body").click(function (event) {
+    $(".container").click(function (event) {
 
         //console.log("выполняется");
         //console.log(event.pageX);
@@ -57,7 +59,8 @@ $( document ).ready(function() {
     });
 
 
-    $("body").mousedown(function (event){
+    $(".container").mousedown(function (event){
+        console.log('mousedown');
 
         var figcont = $(event.target).closest('.figcont');
         if (!figcont.length) {
@@ -87,6 +90,7 @@ $( document ).ready(function() {
             var corX = (figcont.width() - clientRect.width)/2;
             var corY = (figcont.height() - clientRect.height)/2;
 
+
             dragFigure.figcont = figcont;
             dragFigure.posmouseX = posmouseX;
             dragFigure.posmouseY = posmouseY;
@@ -105,7 +109,7 @@ $( document ).ready(function() {
 
     });
 
-    $("body").on("mousemove", function(e){
+    $(".container").on("mousemove", function(e){
 
         if (!dragFigure.figcont) {
             return;
@@ -188,7 +192,7 @@ $( document ).ready(function() {
     }
 
 
-    $("body").mouseup(function (event){
+    $(".container").mouseup(function (event){
 
         var beginPageX = event.pageX;
         var beginPageY = event.pageY;
@@ -253,20 +257,28 @@ $( document ).ready(function() {
         dragFigure = {};
         clickStatus = true;
         item.css({"z-index":zIndex++});
-
         var winStatus = 1;
 
         for (i = 0; i < field_width; i++) {
             for (j = 0; j < field_height; j++) {
-                winStatus = winStatus * fieldStatus[i][j];
+                winStatus = winStatus * fieldStatus[j][i];
             }
         }
         console.log(winStatus);
 
         if (winStatus==1)
         {
-            alert("WIN");
+            globalWinStatus = 1;
+        }
+
+        if (globalWinStatus==1)
+        {
+            messageBox.removeClass("hidden");
         }
     });
 
+
+    $(".close-button").click(function (event) {
+        messageBox.addClass("hidden");
+    });
 });
